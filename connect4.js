@@ -156,6 +156,8 @@ class Game {
     this.height = height;
     this.currPlayer = 1;
     this.board = [];
+    this.makeBoard();
+    this.makeHtmlBoard();
   }
 
   makeBoard() {
@@ -166,6 +168,8 @@ class Game {
 
   makeHtmlBoard() {
     const board = document.getElementById('board');
+    //TODO: Need to clear the board and repopulate new board
+    board.innerHTML = '';
 
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
@@ -249,12 +253,14 @@ class Game {
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
   checkForWin() {
+    console.log("checkForWin", this);
     function _win(cells) {
+      console.log('_winthis=', this);
       // Check four cells to see if they're all color of current player
       //  - cells: list of four (y, x) cells
       //  - returns true if all are legal coordinates & all match currPlayer
 
-      // TODO: Need to refactor to be non-arrow function since arrow functions
+      //TODO: Need to refactor to be non-arrow function since arrow functions
       // don't have a 'this'
       return cells.every(
         ([y, x]) =>
@@ -265,8 +271,16 @@ class Game {
           this.board[y][x] === this.currPlayer
       );
 
-
+      // return cells.every(
+      //   function ([y, x]) {
+      //     console.log('everythis=', this);
+      //     return y >= 0 && y < this.height
+      //       && x >= 0 && x < this.width
+      //       && this.board[y][x] === this.currPlayer;
+      //   }
+      // );
     }
+    let _winBound = _win.bind(this);
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -278,7 +292,8 @@ class Game {
         const diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
 
         // find winner (only checking each win-possibility as needed)
-        if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
+        if (_winBound(horiz) || _winBound(vert) || _winBound(diagDR) || _winBound(diagDL)) {
+          //if (_win.call(this, horiz) || _win.call(this, vert) || _win.call(this, diagDR) || _win.call(this, diagDL)) {
           return true;
         }
       }
@@ -292,6 +307,6 @@ class Game {
   }
 }
 
-let game = new Game(6, 7);
-game.makeBoard();
-game.makeHtmlBoard();
+// new Game(6, 7);
+// game.makeBoard();
+// game.makeHtmlBoard();
